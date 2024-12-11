@@ -1,35 +1,18 @@
- /*
-     (c) 2016 Microchip Technology Inc. and its subsidiaries. You may use this
-    software and any derivatives exclusively with Microchip products.
+// IMPORTS SECTION
+#include <stdint.h> // NOTE:Standard library for fixed-width integer types
+#include <stdbool.h> //NOTE:  Standard library for boolean type
+#include "oledDriver/oledC.h" // NOTE: OLED driver header
+#include "oledDriver/oledC_colors.h"//NOTE: OLED color definitions
+#include "oledDriver/oledC_shapeHandler.h" // NOTE: OLED shape handler header
+#include "oledDriver/oledC_shapes.h" //NOTE: OLED shapes header
 
-    THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
-    EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
-    WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
-    PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION
-    WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION.
-
-    IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
-    WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
-    BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
-    FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN
-    ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
-    THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
-
-    MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
-    TERMS.
- */
-
-#include <stdint.h>
-#include <stdbool.h>
-#include "oledDriver/oledC.h"
-#include "oledDriver/oledC_colors.h"
-#include "oledDriver/oledC_shapeHandler.h"
-#include "oledDriver/oledC_shapes.h"
-
+// Static variable to track if the example setup has been initialized
 static bool exampleInitialized;
+
+// Static variable to hold the background color for the OLED screen
 static uint16_t background_color;
 
+// Array defining a bitmap logo (23 rows of 32-bit binary data for the image)- NOTE: the amount of 1 and 0 controls the rendered logo shape.
 static const uint32_t logo[] = 
 { 
     0b11111111111000000000011111111111,
@@ -57,83 +40,90 @@ static const uint32_t logo[] =
     0b11111111111000000000011111111111
 };
 
+// Function to clear the OLED screen by filling it with the background color
 static void oledC_clearScreen(void) 
 {    
-    uint8_t x;
-    uint8_t y;
-    oledC_setColumnAddressBounds(0,96);
-    oledC_setRowAddressBounds(0,96);
-    for(x = 0; x < 96; x++)
+    uint8_t x; // Column index
+    uint8_t y; // Row index
+    oledC_setColumnAddressBounds(0,96); // Set the column bounds for clearing
+    oledC_setRowAddressBounds(0,96); // Set the row bounds for clearing
+    for(x = 0; x < 96; x++) // Iterate through columns
     {
-        for(y = 0; y < 96; y++)
+        for(y = 0; y < 96; y++) // Iterate through rows
         {
-            oledC_sendColorInt(background_color);
+            oledC_sendColorInt(background_color); // Fill each pixel with the background color
         }
     }
 }
 
+// Function to set the background color and clear the OLED screen
 static void oledC_setBackground(uint16_t color)
 {
-    background_color = color;
-    oledC_clearScreen();
+    background_color = color; // Update the background color variable
+    oledC_clearScreen(); // Clear the screen with the new background color
 }
 
+// Function to set up an example display with shapes and a bitmap logo
 static void oledC_example_setup(void)
 {
-    oledC_setBackground(OLEDC_COLOR_WHITE);
-    shape_params_t params;
+    oledC_setBackground(OLEDC_COLOR_WHITE); // Set the background to white
+    shape_params_t params; // Structure to hold shape parameters
     
-    params.bitmap.color = OLEDC_COLOR_RED;
-    params.bitmap.x = 14;
-    params.bitmap.y = 25;
-    params.bitmap.sx = 2;
-    params.bitmap.sy = 2;
-    params.bitmap.bit_array = (uint32_t *)&logo[0];
-    params.bitmap.array_length = 23;
-    oledC_addShape(0,OLED_SHAPE_BITMAP, &params);
+    // Configure parameters for the bitmap logo
+    params.bitmap.color = OLEDC_COLOR_RED; // Set the logo color to red
+    params.bitmap.x = 14; // Set the X-coordinate for the logo
+    params.bitmap.y = 25; // Set the Y-coordinate for the logo
+    params.bitmap.sx = 2; // Set horizontal scaling factor
+    params.bitmap.sy = 2; // Set vertical scaling factor
+    params.bitmap.bit_array = (uint32_t *)&logo[0]; // Pointer to the logo bitmap array
+    params.bitmap.array_length = 23; // Number of rows in the bitmap
+    oledC_addShape(0,OLED_SHAPE_BITMAP, &params); // Add the bitmap as a shape to the display
     
-    params.circle.radius = 10;
-    params.circle.xc = 10;
-    params.circle.yc = 10;
-    oledC_addShape(1,OLED_SHAPE_CIRCLE, &params);
+    // Configure and add a circle at (10, 10)
+    params.circle.radius = 10; // Circle radius
+    params.circle.xc = 10; // X-coordinate of the circle center
+    params.circle.yc = 10; // Y-coordinate of the circle center
+    oledC_addShape(1,OLED_SHAPE_CIRCLE, &params); // Add the circle shape
     
-    params.circle.color = OLEDC_COLOR_BLUE;
-    params.circle.yc = 85;
-    oledC_addShape(2,OLED_SHAPE_CIRCLE, &params);
+    // Configure and add a blue circle at (10, 85)
+    params.circle.color = OLEDC_COLOR_BLUE; // Circle color
+    params.circle.yc = 85; // Update Y-coordinate of the circle center
+    oledC_addShape(2,OLED_SHAPE_CIRCLE, &params); // Add the circle shape
     
-    params.circle.color = OLEDC_COLOR_YELLOW;
-    params.circle.xc = 85;
-    oledC_addShape(3,OLED_SHAPE_CIRCLE, &params);
+    // Configure and add a yellow circle at (85, 85)
+    params.circle.color = OLEDC_COLOR_YELLOW; // Circle color
+    params.circle.xc = 85; // Update X-coordinate of the circle center
+    oledC_addShape(3,OLED_SHAPE_CIRCLE, &params); // Add the circle shape
     
-    params.circle.color = OLEDC_COLOR_GREEN;
-    params.circle.yc = 10;
-    oledC_addShape(4,OLED_SHAPE_CIRCLE, &params);
+    // Configure and add a green circle at (85, 10)
+    params.circle.color = OLEDC_COLOR_GREEN; // Circle color
+    params.circle.yc = 10; // Update Y-coordinate of the circle center
+    oledC_addShape(4,OLED_SHAPE_CIRCLE, &params); // Add the circle shape
     
-    
-    oledC_redrawAll();
-    exampleInitialized = true;
+    oledC_redrawAll(); // Redraw all shapes on the screen
+    exampleInitialized = true; // Mark the example as initialized
 }
 
+// Function to run the OLED example and animate the bitmap
 void oledC_example(void)
 {
-    static int8_t shift = -24;
-    const uint8_t shift_from = 15;
-    if(!exampleInitialized)
+    static int8_t shift = -24; // Shift amount for the bitmap's X-coordinate
+    const uint8_t shift_from = 15; // Starting position for the animation
+    if(!exampleInitialized) // Check if the example setup is not initialized
     {
-        oledC_example_setup();
+        oledC_example_setup(); // Initialize the example setup
     }
     
-    oledC_DrawString(10,0,2,2,(uint8_t*)"Shenkar", OLEDC_COLOR_BLACK);
-    oledC_DrawString(30,78,2,2,(uint8_t*)"Lab", OLEDC_COLOR_DARKGREEN);
-    shape_t *moveIt = oledC_getShape(0);
+    oledC_DrawString(10,0,2,2,(uint8_t*)"yotam", OLEDC_COLOR_BLACK); // Draw the string "yotam" at the top left
+    oledC_DrawString(30,78,2,2,(uint8_t*)"Lab", OLEDC_COLOR_DARKGREEN); // Draw the string "Lab" at the bottom center
+    shape_t *moveIt = oledC_getShape(0); // Get the bitmap shape to animate
            
-    oledC_eraseShape(0, background_color);
-    moveIt->params.bitmap.x = shift_from + shift;
-    shift += 4;
-    if(shift > 24)
+    oledC_eraseShape(0, background_color); // Erase the current bitmap position
+    moveIt->params.bitmap.x = shift_from + shift; // Update the X-coordinate with the shift
+    shift += 4; // Increment the shift
+    if(shift > 24) // Reset shift when it exceeds the bounds
     {
         shift = -24;
     }
-    oledC_redrawIndex(0);
+    oledC_redrawIndex(0); // Redraw the bitmap at the new position
 }
-
